@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="mn">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080d12">
+    <meta name="description" content="Элемент сонгож, атомын бүтцийг интерактив байдлаар судлах лаборатори.">
+    <title>ATOM / Лаборатори</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="ATOM эхлэл">
+          <span class="brand-mark"><span></span><span></span><span></span></span>
+          <span>ATOM<span class="brand-slash">/</span>LAB</span>
+        </a>
+        <div class="topbar-center"><span class="live-dot"></span> СУДАЛГААНЫ ГОРИМ <span class="topbar-divider">/</span> 01. АТОМЫН БҮТЭЦ</div>
+        <button class="help-button" id="help-button" type="button" aria-label="Тусламж">?</button>
+      </header>
+
+      <main>
+        <section class="intro">
+          <div>
+            <p class="eyebrow"><span class="eyebrow-line"></span> ЭЛЕМЕНТИЙГ ДОТРООС НЬ СУДАЛ</p>
+            <h1>Атомын <span>дотор</span> юу байна?</h1>
+            <p class="intro-copy">Элементээ сонго. Түүний бүтцийг томруулж, давхарга бүрээр нь задалж хар.</p>
+          </div>
+          <div class="intro-index"><span>СУДАЛГАА</span><strong>№ 001—118</strong></div>
+        </section>
+
+        <section class="workspace" aria-label="Атомын судалгааны талбар">
+          <aside class="element-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">01 / СОНГОХ</p><h2>Элемент</h2></div>
+              <span class="count-badge">118</span>
+            </div>
+            <label class="search-box" for="element-search">
+              <span class="search-icon" aria-hidden="true"></span>
+              <input id="element-search" type="search" placeholder="Нэр, тэмдэг, дугаар..." autocomplete="off">
+              <kbd>/</kbd>
+            </label>
+            <div class="table-toolbar">
+              <span id="result-count">БҮХ ЭЛЕМЕНТ</span>
+              <button id="clear-search" type="button" aria-label="Хайлтыг арилгах">ЦЭВЭРЛЭХ <span>×</span></button>
+            </div>
+            <div class="element-table-scroll">
+              <div class="element-grid" id="element-grid" aria-label="Үелэх систем"></div>
+            </div>
+            <div class="panel-foot"><span class="tiny-dot"></span> 118 ЭЛЕМЕНТИЙН САН <span class="foot-right">ЭЛЕМЕНТ СОНГОЖ АТОМЫГ СУДАЛ</span></div>
+          </aside>
+
+          <section class="analysis-panel" aria-label="Сонгосон элементийн атом">
+            <div class="analysis-topline">
+              <div class="view-label"><span class="view-crosshair">⌖</span> АТОМЫН ДҮРСЛЭЛ <span class="view-muted">/ ИНТЕРАКТИВ ЗАГВАР</span></div>
+              <div class="zoom-controls" aria-label="Томруулах удирдлага">
+                <button id="zoom-out" type="button" aria-label="Жижигрүүлэх">−</button>
+                <span id="zoom-value">100%</span>
+                <button id="zoom-in" type="button" aria-label="Томруулах">+</button>
+              </div>
+            </div>
+
+            <div class="atom-stage" id="atom-stage" tabindex="0" aria-label="Атомын 3D дүрслэл. Чирж эргүүлж, хулганын хүрдээр томруулна.">
+              <div class="stage-grid"></div>
+              <div class="stage-corner corner-tl">LAB / 01</div>
+              <div class="stage-corner corner-tr">MODEL: BOHR</div>
+              <div class="stage-corner corner-bl">ХЯЛБАРШУУЛСАН БОРЫН ЗАГВАР</div>
+              <div class="stage-corner corner-br" id="stage-coordinate">Z: 026 / Fe</div>
+              <div class="atom-wrap" id="atom-wrap">
+                <svg class="atom-svg" id="atom-svg" viewBox="0 0 600 500" role="img" aria-label="Төмөр атомын загвар"></svg>
+              </div>
+              <div class="atom-tooltip" id="atom-tooltip"><span class="tooltip-dot"></span> ЭЛЕКТРОН БҮРХҮҮЛ</div>
+              <div class="stage-hint"><span class="hint-icon">✳</span> ЧИРЖ ЭРГҮҮЛ <i>·</i> ХҮРД / PINCH ТОМРУУЛ</div>
+            </div>
+
+            <div class="atom-controls">
+              <button class="explode-button" id="explode-button" type="button" aria-pressed="false">
+                <span class="explode-icon">✳</span><span id="explode-label">БҮТЦИЙГ ЗАДЛАХ</span><span class="button-arrow">↗</span>
+              </button>
+              <div class="layer-legend"><span><i class="legend-electron"></i>ЭЛЕКТРОН</span><span><i class="legend-nucleus"></i>ЦӨМ</span><span><i class="legend-shell"></i>БҮРХҮҮЛ</span></div>
+            </div>
+
+            <section class="element-details" aria-live="polite">
+              <div class="element-identity">
+                <div class="big-symbol-wrap"><span class="identity-number" id="identity-number">26</span><strong id="identity-symbol">Fe</strong><span class="identity-charge">АТОМ</span></div>
+                <div class="identity-name"><p class="eyebrow">СОНГОГДСОН ЭЛЕМЕНТ</p><h2 id="identity-name">Төмөр</h2><span id="identity-category">Шилжилтийн металл</span></div>
+              </div>
+              <div class="element-stats">
+                <div class="stat"><span>ПРОТОН</span><strong id="proton-count">26</strong><small>p⁺</small></div>
+                <div class="stat"><span>ЭЛЕКТРОН</span><strong id="electron-count">26</strong><small>e⁻</small></div>
+                <div class="stat"><span>НЕЙТРОН</span><strong id="neutron-count">30</strong><small>n⁰</small></div>
+                <div class="stat"><span>МАССЫН ТОО</span><strong id="mass-count">56</strong><small>u</small></div>
+              </div>
+              <div class="shell-row">
+                <div class="shell-heading"><span>ЭЛЕКТРОНЫ БҮРХҮҮЛ</span><span id="shell-summary">2 — 8 — 14 — 2</span></div>
+                <div class="shell-bars" id="shell-bars"></div>
+              </div>
+            </section>
+          </section>
+        </section>
+        <footer class="footer"><span>ATOM/LAB <i>—</i> ХИМИЙГ ХАРЖ ОЙЛГО</span><span>ИНТЕРАКТИВ АТОМЫН ЛАБОРАТОРИ <i>·</i> 2026</span></footer>
+      </main>
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
