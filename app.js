@@ -21,7 +21,7 @@ const massNumbers = [
 const categoryNames = {
   nonmetal: "Металл биш", noble: "Идэвхгүй хий", alkali: "Шүлтийн металл",
   alkaline: "Шүлтлэг газрын металл", metalloid: "Хагас металл", halogen: "Галоген",
-  metal: "Шилжилтийн металл", lanthanoid: "Лантаноид", actinoid: "Актиноид",
+  metal: "Металл", lanthanoid: "Лантаноид", actinoid: "Актиноид",
   unknown: "Шинж чанар тодорхойгүй"
 };
 
@@ -92,21 +92,32 @@ function renderGrid(query = "") {
     fragment.append(actinoidLabel);
   }
   filtered.forEach(element => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `element-card${selected.number === element.number ? " active" : ""}`;
-    button.dataset.category = element.category;
-    button.setAttribute("aria-label", `${element.number}. ${element.name} (${element.symbol})`);
-    button.setAttribute("aria-pressed", selected.number === element.number ? "true" : "false");
-    button.title = `${element.number} · ${element.name}`;
-    button.innerHTML = `<span class="number">${element.number}</span><span class="symbol">${element.symbol}</span>`;
+    const card = document.createElement("div");
+    card.className = `element-card${selected.number === element.number ? " active" : ""}`;
+    card.dataset.category = element.category;
+    const selectButton = document.createElement("button");
+    selectButton.type = "button";
+    selectButton.className = "element-select";
+    selectButton.setAttribute("aria-label", `${element.number}. ${element.name} (${element.symbol})`);
+    selectButton.setAttribute("aria-pressed", selected.number === element.number ? "true" : "false");
+    selectButton.title = `${element.number} · ${element.name}`;
+    selectButton.innerHTML = `<span class="number">${element.number}</span><span class="symbol">${element.symbol}</span>`;
+    const favoriteButton = document.createElement("button");
+    favoriteButton.type = "button";
+    favoriteButton.className = "element-favorite";
+    favoriteButton.dataset.favoriteNumber = String(element.number);
+    favoriteButton.setAttribute("aria-label", `${element.name} элементийг дуртайд хадгалах`);
+    favoriteButton.setAttribute("aria-pressed", "false");
+    favoriteButton.textContent = "☆";
     const [row, column] = getTablePosition(element.number);
-    button.style.gridRow = String(row);
-    button.style.gridColumn = String(column);
-    button.addEventListener("click", () => selectElement(element));
-    fragment.append(button);
+    card.style.gridRow = String(row);
+    card.style.gridColumn = String(column);
+    selectButton.addEventListener("click", () => selectElement(element));
+    card.append(selectButton, favoriteButton);
+    fragment.append(card);
   });
   grid.append(fragment);
+  window.AtomLabPlatform?.refreshFavorites();
 }
 
 function getTablePosition(number) {
@@ -133,6 +144,7 @@ function selectElement(element) {
   document.getElementById("explode-label").textContent = "БҮТЦИЙГ ЗАДЛАХ";
   updateDetails();
   renderGrid(search.value);
+  window.dispatchEvent(new CustomEvent("atomlab:element-selected", { detail: element }));
 }
 
 function updateDetails() {
@@ -161,7 +173,13 @@ function updateDetails() {
   drawAtom(shells);
 }
 
-function drawAtom(shells) {
+function drawAtom(shells, target = atomSvg, model = {
+  element: selected,
+  protons: selected.number,
+  neutrons: massNumbers[selected.number - 1] - selected.number,
+  electrons: selected.number
+}, expanded = exploded) {
+  const idPrefix = target === atomSvg ? "atom" : target.id || "atom-view";
   const cx = 300;
   const cy = 250;
   const baseRadii = [68, 104, 140, 176, 212, 246, 274].slice(0, shells.length);
@@ -169,7 +187,7 @@ function drawAtom(shells) {
     const scaleToFit = 190 / baseRadii[baseRadii.length - 1];
     for (let index = 0; index < baseRadii.length; index++) baseRadii[index] *= scaleToFit;
   }
-  const shellSpread = exploded ? 1.16 : 1;
+  const shellSpread = expanded ? 1.16 : 1;
   const paths = [];
   const shellLabels = [];
   const backElectrons = [];
@@ -197,25 +215,24 @@ function drawAtom(shells) {
       const point = projectPoint(index / 80 * Math.PI * 2);
       return `${index === 0 ? "M" : "L"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
     }).join(" ");
-    paths.push(`<path id="shell-path-${shellIndex}" d="${points} Z" fill="none" stroke="#65d8d3" stroke-width="${exploded ? 1.45 : 1.1}" stroke-dasharray="${exploded ? "2 4" : "3 5"}" opacity="${exploded ? 0.82 : 0.5}"/>`);
+    paths.push(`<path id="${idPrefix}-shell-path-${shellIndex}" d="${points} Z" fill="none" stroke="#65d8d3" stroke-width="${expanded ? 1.45 : 1.1}" stroke-dasharray="${expanded ? "2 4" : "3 5"}" opacity="${expanded ? 0.82 : 0.5}"/>`);
     for (let electron = 0; electron < count; electron++) {
       const startAngle = Math.PI * 2 * electron / count + shellIndex * 0.38;
       const point = projectPoint(startAngle);
       const sphereSize = Math.max(2.6, 4.4 * point.perspective);
       const duration = 26 + shellIndex * 7;
       const phase = (1 - startAngle / (Math.PI * 2)) * duration;
-      const particle = `<g class="electron-particle"><circle r="${(sphereSize * 1.85).toFixed(1)}" fill="url(#electron-halo)"/><circle r="${sphereSize.toFixed(1)}" fill="url(#electron-sphere)"/><animateMotion dur="${duration}s" begin="-${phase.toFixed(2)}s" repeatCount="indefinite"><mpath href="#shell-path-${shellIndex}"/></animateMotion></g>`;
+      const particle = `<g class="electron-particle"><circle r="${(sphereSize * 1.85).toFixed(1)}" fill="url(#${idPrefix}-electron-halo)"/><circle r="${sphereSize.toFixed(1)}" fill="url(#${idPrefix}-electron-sphere)"/><animateMotion dur="${duration}s" begin="-${phase.toFixed(2)}s" repeatCount="indefinite"><mpath href="#${idPrefix}-shell-path-${shellIndex}"/></animateMotion></g>`;
       (point.z < 0 ? backElectrons : frontElectrons).push(particle);
     }
-    if (exploded) {
+    if (expanded) {
       const label = projectPoint(-0.72);
       const labelX = label.x + 6;
       const labelY = label.y - 8;
       shellLabels.push(`<text x="${labelX.toFixed(0)}" y="${labelY.toFixed(0)}" class="shell-label">БҮРХҮҮЛ ${shellIndex + 1} · ${count}e⁻</text>`);
     }
   });
-  const protons = selected.number;
-  const neutrons = massNumbers[selected.number - 1] - selected.number;
+  const { protons, neutrons, electrons } = model;
   const nucleusParticles = Math.min(protons + neutrons, 68);
   const nucleusPoints = Array.from({ length: nucleusParticles }, (_, index) => {
     const y = 1 - 2 * (index + 0.5) / nucleusParticles;
@@ -232,27 +249,27 @@ function drawAtom(shells) {
     const rotatedY = point.y * Math.cos(rotationX) - rotatedZ * Math.sin(rotationX);
     const depth = point.y * Math.sin(rotationX) + rotatedZ * Math.cos(rotationX);
     const perspective = 760 / (760 - depth);
-    const isProton = index < Math.round(nucleusParticles * protons / (protons + neutrons));
+    const isProton = protons > 0 && index < Math.round(nucleusParticles * protons / (protons + neutrons));
     const x = cx + rotatedX * perspective;
     const screenY = cy + rotatedY * perspective;
     const sphereSize = 5.3 * perspective;
-    return { depth, markup: `<circle cx="${x.toFixed(1)}" cy="${screenY.toFixed(1)}" r="${sphereSize.toFixed(1)}" fill="url(#${isProton ? "proton-sphere" : "neutron-sphere"})"/>` };
+    return { depth, markup: `<circle cx="${x.toFixed(1)}" cy="${screenY.toFixed(1)}" r="${sphereSize.toFixed(1)}" fill="url(#${idPrefix}-${isProton ? "proton-sphere" : "neutron-sphere"})"/>` };
   }).sort((first, second) => first.depth - second.depth);
-  let markup = `${paths.join("")}${shellLabels.join("")}${backElectrons.join("")}<circle cx="${cx}" cy="${cy}" r="31" fill="url(#nucleus-glow)"/>${nucleusPoints.map(point => point.markup).join("")}${frontElectrons.join("")}`;
+  let markup = `${paths.join("")}${shellLabels.join("")}${backElectrons.join("")}${nucleusParticles ? `<circle cx="${cx}" cy="${cy}" r="31" fill="url(#${idPrefix}-nucleus-glow)"/>` : ""}${nucleusPoints.map(point => point.markup).join("")}${frontElectrons.join("")}`;
   const labelPoint = project(0, 38, 0);
-  markup += `<text x="${labelPoint.x.toFixed(1)}" y="${(labelPoint.y + 7).toFixed(1)}" text-anchor="middle" class="nucleus-label">ЦӨМ · ${selected.symbol}</text>`;
-  if (exploded) {
+  markup += `<text x="${labelPoint.x.toFixed(1)}" y="${(labelPoint.y + 7).toFixed(1)}" text-anchor="middle" class="nucleus-label">ЦӨМ · ${model.element?.symbol || "—"}</text>`;
+  if (expanded) {
     markup += `<path d="M300 218 L300 156" class="leader-line"/><text x="300" y="146" text-anchor="middle" class="nucleus-callout">ЦӨМ · ${protons}p⁺ / ${neutrons}n⁰</text>`;
   }
-  atomSvg.innerHTML = `<defs>
-    <radialGradient id="electron-sphere" cx="32%" cy="28%"><stop stop-color="#ffffff"/><stop offset=".22" stop-color="#bffffa"/><stop offset=".6" stop-color="#4ff3e3"/><stop offset="1" stop-color="#087c88"/></radialGradient>
-    <radialGradient id="electron-halo"><stop stop-color="#51e4df" stop-opacity=".35"/><stop offset="1" stop-color="#51e4df" stop-opacity="0"/></radialGradient>
-    <radialGradient id="proton-sphere" cx="30%" cy="25%"><stop stop-color="#fff0df"/><stop offset=".25" stop-color="#ffca98"/><stop offset=".72" stop-color="#fa8759"/><stop offset="1" stop-color="#a7423c"/></radialGradient>
-    <radialGradient id="neutron-sphere" cx="30%" cy="25%"><stop stop-color="#f1ffff"/><stop offset=".24" stop-color="#c9e4e5"/><stop offset=".72" stop-color="#809ca5"/><stop offset="1" stop-color="#344c5a"/></radialGradient>
-    <radialGradient id="nucleus-glow"><stop stop-color="#ffb985" stop-opacity=".26"/><stop offset="1" stop-color="#ff9b64" stop-opacity="0"/></radialGradient>
+  target.innerHTML = `<defs>
+    <radialGradient id="${idPrefix}-electron-sphere" cx="32%" cy="28%"><stop stop-color="#ffffff"/><stop offset=".22" stop-color="#bffffa"/><stop offset=".6" stop-color="#4ff3e3"/><stop offset="1" stop-color="#087c88"/></radialGradient>
+    <radialGradient id="${idPrefix}-electron-halo"><stop stop-color="#51e4df" stop-opacity=".35"/><stop offset="1" stop-color="#51e4df" stop-opacity="0"/></radialGradient>
+    <radialGradient id="${idPrefix}-proton-sphere" cx="30%" cy="25%"><stop stop-color="#fff0df"/><stop offset=".25" stop-color="#ffca98"/><stop offset=".72" stop-color="#fa8759"/><stop offset="1" stop-color="#a7423c"/></radialGradient>
+    <radialGradient id="${idPrefix}-neutron-sphere" cx="30%" cy="25%"><stop stop-color="#f1ffff"/><stop offset=".24" stop-color="#c9e4e5"/><stop offset=".72" stop-color="#809ca5"/><stop offset="1" stop-color="#344c5a"/></radialGradient>
+    <radialGradient id="${idPrefix}-nucleus-glow"><stop stop-color="#ffb985" stop-opacity=".26"/><stop offset="1" stop-color="#ff9b64" stop-opacity="0"/></radialGradient>
   </defs>${markup}`;
-  atomSvg.setAttribute("aria-label", `${selected.name} атомын загвар. ${protons} протон, ${neutrons} нейтрон, ${selected.number} электрон.`);
-  document.getElementById("atom-tooltip").style.display = exploded ? "none" : "block";
+  target.setAttribute("aria-label", `${model.element?.name || "Элементгүй бөөм"}-ийн загвар. ${protons} протон, ${neutrons} нейтрон, ${electrons} электрон.`);
+  if (target === atomSvg) document.getElementById("atom-tooltip").style.display = expanded ? "none" : "block";
 }
 
 function setZoom(next) {
@@ -347,3 +364,13 @@ document.addEventListener("keydown", event => {
 
 renderGrid();
 updateDetails();
+window.AtomLabApp = Object.freeze({
+  get elements() { return elements; },
+  get categoryNames() { return categoryNames; },
+  get massNumbers() { return massNumbers; },
+  get selected() { return selected; },
+  getShells,
+  drawAtom,
+  renderGrid,
+  selectElement
+});

@@ -23,7 +23,7 @@
         --sans: "Manrope", "Segoe UI", sans-serif;
       }
       *, *::before, *::after { box-sizing: border-box; }
-      body { margin: 0; min-width: 320px; background: var(--bg); color: var(--text); font-family: var(--sans); }
+      body { margin: 0; min-width: 0; background: var(--bg); color: var(--text); font-family: var(--sans); }
       button, input { font: inherit; }
       button { color: inherit; }
       .app-shell { min-height: 100vh; background: radial-gradient(ellipse at 65% 31%, #10202a 0, transparent 45%), var(--bg); }
@@ -122,7 +122,7 @@
         .layer-legend { align-self: flex-end; }
       }
     </style>
-    <link rel="stylesheet" href="styles.css?v=20261022-2">
+    <link rel="stylesheet" href="styles.css?v=20261023-1">
   </head>
   <body>
     <div class="app-shell">
@@ -131,11 +131,22 @@
           <span class="brand-mark"><span></span><span></span><span></span></span>
           <span>ATOM<span class="brand-slash">/</span>LAB</span>
         </a>
-        <div class="topbar-center"><span class="live-dot"></span> СУДАЛГААНЫ ГОРИМ <span class="topbar-divider">/</span> 01. АТОМЫН БҮТЭЦ</div>
+        <div class="topbar-center"><span class="live-dot"></span> ХИМИЙН СУРАЛЦАХ ЛАБОРАТОРИ</div>
+        <span class="local-data-label">ЗӨВХӨН ЭНЭ ТӨХӨӨРӨМЖИД ХАДГАЛАГДАНА</span>
         <button class="help-button" id="help-button" type="button" aria-label="Тусламж">?</button>
       </header>
 
+      <nav class="primary-nav" id="primary-nav" aria-label="Үндсэн цэс">
+        <a href="#home" data-view-link="home" aria-current="page">Нүүр</a>
+        <a href="#learn" data-view-link="learn">Хичээл</a>
+        <a href="#quiz" data-view-link="quiz">Сорил</a>
+        <a href="#lab" data-view-link="lab">Лаборатори</a>
+        <a href="#saved" data-view-link="saved">Хадгалсан <span class="nav-count" id="favorite-count">0</span></a>
+        <a href="#progress" data-view-link="progress">Миний ахиц</a>
+      </nav>
+
       <main>
+        <section class="app-view" id="home-view" data-view="home">
         <section class="intro">
           <div>
             <p class="eyebrow"><span class="eyebrow-line"></span> ЭЛЕМЕНТИЙГ ДОТРООС НЬ СУДАЛ</p>
@@ -179,7 +190,7 @@
             <div class="atom-stage" id="atom-stage" tabindex="0" aria-label="Атомын 3D дүрслэл. Чирж эргүүлж, хулганын хүрдээр томруулна.">
               <div class="stage-grid"></div>
               <div class="stage-corner corner-tl">LAB / 01</div>
-              <div class="stage-corner corner-tr">MODEL: BOHR</div>
+              <div class="stage-corner corner-tr">ЗАГВАР: БОР</div>
               <div class="stage-corner corner-bl">ХЯЛБАРШУУЛСАН БОРЫН ЗАГВАР</div>
               <div class="stage-corner corner-br" id="stage-coordinate">Z: 026 / Fe</div>
               <div class="atom-wrap" id="atom-wrap">
@@ -205,19 +216,104 @@
                 <div class="stat"><span>ПРОТОН</span><strong id="proton-count">26</strong><small>p⁺</small></div>
                 <div class="stat"><span>ЭЛЕКТРОН</span><strong id="electron-count">26</strong><small>e⁻</small></div>
                 <div class="stat"><span>НЕЙТРОН</span><strong id="neutron-count">30</strong><small>n⁰</small></div>
-                <div class="stat"><span>МАССЫН ТОО</span><strong id="mass-count">56</strong><small>u</small></div>
+                <div class="stat"><span>МАССЫН ТОО A</span><strong id="mass-count">56</strong><small>A</small></div>
               </div>
               <div class="shell-row">
                 <div class="shell-heading"><span>ЭЛЕКТРОНЫ БҮРХҮҮЛ</span><span id="shell-summary">2 — 8 — 14 — 2</span></div>
                 <div class="shell-bars" id="shell-bars"></div>
+                <p class="isotope-note">Нейтроны тоо, массын тоог төлөөлөх жишээ изотопоор харуулав; нэг элементийн изотопуудын нейтроны тоо ялгаатай.</p>
               </div>
             </section>
           </section>
         </section>
+        </section>
+
+        <section class="app-view" id="learn-view" data-view="learn" hidden>
+          <div class="view-heading">
+            <div><p class="eyebrow">01 / СУРАЛЦАХ</p><h1>Хими <span>сурцгаая.</span></h1><p class="intro-copy">Атомын үндсээс ионы ойлголт хүртэл — алхам алхмаар судлаарай.</p></div>
+            <div class="view-progress"><span>ДУУССАН ХИЧЭЭЛ</span><strong id="lesson-progress-label">0 / 10</strong><div class="progress-track"><span id="lesson-progress-bar"></span></div></div>
+          </div>
+          <label class="section-search"><span aria-hidden="true">⌕</span><input id="lesson-search" type="search" aria-label="Хичээл хайх" placeholder="Хичээл хайх..." autocomplete="off"><kbd>/</kbd></label>
+          <div class="lesson-categories" id="lesson-categories" aria-label="Хичээлийн ангилал"></div>
+          <div class="lesson-grid" id="lesson-grid"></div>
+          <article class="lesson-reader" id="lesson-reader" hidden aria-live="polite"></article>
+        </section>
+
+        <section class="app-view" id="quiz-view" data-view="quiz" hidden>
+          <div class="view-heading">
+            <div><p class="eyebrow">02 / МЭДЛЭГЭЭ ШАЛГАХ</p><h1>Бодож үзье.</h1><p class="intro-copy">Зөв хариултаа сонгоод, тайлбартай нь суралцаарай.</p></div>
+            <div class="quiz-record"><span>ШИЛДЭГ ҮР ДҮН</span><strong id="quiz-best-label">—</strong></div>
+          </div>
+          <div class="quiz-launcher" id="quiz-launcher">
+            <h2>Түвшнээ сонгоорой</h2><p>Асуулт бүрийн тайлбарыг уншиж, оноогоо цуглуулна.</p>
+            <div class="difficulty-options" id="difficulty-options"></div>
+            <button class="primary-button" id="daily-quiz-button" type="button">Өнөөдрийн дадлага <span>↗</span></button>
+            <p class="quiz-count-hint">Дадлагын асуултууд өдөр бүр шинэчлэгдэнэ.</p>
+          </div>
+          <div class="quiz-panel" id="quiz-panel" hidden></div>
+          <div class="quiz-history" id="quiz-history"></div>
+        </section>
+
+        <section class="app-view" id="lab-view" data-view="lab" hidden>
+          <div class="view-heading">
+            <div><p class="eyebrow">03 / БӨӨМСӨӨ ТОХИРУУЛАХ</p><h1>Атомоо <span>бүтээ.</span></h1><p class="intro-copy">Протон сонгоход элемент, нейтрон сонгоход изотоп, электрон сонгоход цэнэг өөрчлөгдөнө.</p></div>
+            <label class="example-picker">ЖИШЭЭ АТОМ
+              <select id="lab-examples" aria-label="Жишээ атом сонгох">
+                <option value="">Жишээ сонгох</option>
+                <option value="1">Устөрөгч-1</option><option value="2">Гели-4</option>
+                <option value="6">Нүүрстөрөгч-12</option><option value="8">Хүчилтөрөгч-16</option>
+                <option value="11">Натри-23</option><option value="17">Хлор-35</option>
+              </select>
+            </label>
+          </div>
+          <div class="lab-layout">
+            <div class="lab-builder">
+              <div class="lab-particle">
+                <div class="particle-icon proton-icon">p⁺</div><div class="particle-copy"><strong>Протон</strong><span>Элементийн нэрийг тодорхойлно</span></div>
+                <div class="particle-stepper"><button type="button" data-lab-change="protons" data-delta="-1" aria-label="Протон хасах">−</button><output id="lab-protons">26</output><button type="button" data-lab-change="protons" data-delta="1" aria-label="Протон нэмэх">+</button></div>
+              </div>
+              <div class="lab-particle">
+                <div class="particle-icon neutron-icon">n⁰</div><div class="particle-copy"><strong>Нейтрон</strong><span>Изотоп ба массын тоонд нөлөөлнө</span></div>
+                <div class="particle-stepper"><button type="button" data-lab-change="neutrons" data-delta="-1" aria-label="Нейтрон хасах">−</button><output id="lab-neutrons">30</output><button type="button" data-lab-change="neutrons" data-delta="1" aria-label="Нейтрон нэмэх">+</button></div>
+              </div>
+              <div class="lab-particle">
+                <div class="particle-icon electron-icon">e⁻</div><div class="particle-copy"><strong>Электрон</strong><span>Хасах эсвэл нэмэхэд ион үүснэ</span></div>
+                <div class="particle-stepper"><button type="button" data-lab-change="electrons" data-delta="-1" aria-label="Электрон хасах">−</button><output id="lab-electrons">26</output><button type="button" data-lab-change="electrons" data-delta="1" aria-label="Электрон нэмэх">+</button></div>
+              </div>
+              <div class="lab-actions"><button class="secondary-button" id="lab-reset-button" type="button">Сонгосон элемент рүү буцаах</button><button class="text-button" id="lab-clear-button" type="button">Бөөмсийг цэвэрлэх</button></div>
+              <div class="lab-explanation" id="lab-explanation" aria-live="polite"></div>
+            </div>
+            <div class="lab-inspector">
+              <div class="lab-element-card"><span id="lab-atomic-number">26</span><strong id="lab-symbol">Fe</strong><div><h2 id="lab-element-name">Төмөр</h2><span id="lab-particle-state">Саармаг атом</span></div></div>
+              <div class="lab-derived">
+                <div><span>МАССЫН ТОО (p⁺ + n⁰)</span><strong id="lab-mass">56</strong></div>
+                <div><span>ЦЭНЭГ (p⁺ − e⁻)</span><strong id="lab-charge">0</strong></div>
+              </div>
+              <div class="lab-shells"><span>ЭЛЕКТРОНЫ ДАВХРАА</span><strong id="lab-shell-summary">2 — 8 — 14 — 2</strong><div id="lab-shell-bars" class="shell-bars"></div></div>
+              <p class="model-note">Борын хялбаршуулсан загвар: бөөмсийн хэмжээ, зайн харьцаа бодит хэмжээнд биш бөгөөд цөмд бөөмсийг төлөөлөхөөр хязгаарлан үзүүлнэ.</p>
+              <div class="lab-atom-stage"><svg id="lab-atom-svg" viewBox="0 0 600 500" role="img" aria-label="Туршилтын атомын загвар"></svg></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="app-view" id="saved-view" data-view="saved" hidden>
+          <div class="view-heading"><div><p class="eyebrow">04 / МИНИЙ СОНГОЛТ</p><h1>Хадгалсан <span>элементүүд.</span></h1><p class="intro-copy">Дуртай элементүүдээ нэг дороос олж, дэлгэрэнгүйг нь нээнэ үү.</p></div><strong class="saved-total" id="saved-total">0 элемент</strong></div>
+          <div class="saved-toolbar"><label class="section-search"><span aria-hidden="true">⌕</span><input id="saved-search" type="search" aria-label="Хадгалсан элемент хайх" placeholder="Хадгалсан элемент хайх..." autocomplete="off"></label><label class="saved-filter">БҮЛЭГ<select id="saved-category"><option value="">Бүх бүлэг</option></select></label></div>
+          <div class="saved-grid" id="saved-grid"></div>
+        </section>
+
+        <section class="app-view" id="progress-view" data-view="progress" hidden>
+          <div class="view-heading"><div><p class="eyebrow">05 / СУРАЛЦАХ ТҮҮХ</p><h1>Миний <span>ахиц.</span></h1><p class="intro-copy">Суралцах явц тань зөвхөн энэ төхөөрөмжийн веб хөтөчид хадгалагдана.</p></div><button class="danger-button" id="reset-progress-button" type="button">Ахиц шинэчлэх</button></div>
+          <div class="dashboard-stats" id="dashboard-stats"></div>
+          <section class="dashboard-progress"><div><span>ХИЧЭЭЛИЙН АХИЦ</span><strong id="dashboard-progress-label">0 / 10</strong></div><div class="progress-track"><span id="dashboard-progress-bar"></span></div><p id="dashboard-progress-copy"></p></section>
+          <section class="activity-section"><div class="section-title"><h2>Сүүлийн үйл ажиллагаа</h2><span>ЭНЭ ТӨХӨӨРӨМЖИД ХАДГАЛАГДАНА</span></div><div class="activity-list" id="activity-list"></div></section>
+        </section>
+
         <footer class="footer"><span>ATOM/LAB <i>—</i> ХИМИЙГ ХАРЖ ОЙЛГО</span><span>ИНТЕРАКТИВ АТОМЫН ЛАБОРАТОРИ <i>·</i> 2026</span></footer>
       </main>
       <div class="toast" id="toast" role="status"></div>
     </div>
     <script src="app.js"></script>
+    <script src="platform.js"></script>
   </body>
 </html>

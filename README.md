@@ -1,17 +1,36 @@
 # ATOM/LAB
 
-ATOM/LAB is a Mongolian-language interactive periodic table and 3D-style atom explorer. It is a dependency-free static website.
+ATOM/LAB нь монгол хэл дээрх, нэмэлт сан болон backend шаарддаггүй интерактив химийн сургалтын веб аппликейшн юм.
 
-## Run locally
+## Дотоодод ажиллуулах
 
-Open `index.html` in a browser. No build step or package installation is needed.
+`index.html` файлыг веб хөтөчөөр нээж болно. `localStorage`-ийн веб хөтчүүдийн ялгааг багасгахын тулд жижиг static серверээр ажиллуулахыг зөвлөж байна.
 
-## Deploy with GitHub and Vercel
+```powershell
+python -m http.server 8000
+```
 
-1. Push this project to a GitHub repository.
-2. In Vercel, choose **Add New → Project** and import the repository.
-3. Keep the project root as the Root Directory and select **Other** if Vercel asks for a framework preset.
-4. Leave Build Command and Output Directory unset, then deploy. Vercel serves `index.html`, `styles.css`, and `app.js` as static files.
-5. Subsequent pushes to the production branch deploy automatically.
+Дараа нь `http://localhost:8000` хаягийг нээнэ. Төслийг build хийх, нэмэлт сан суулгах шаардлагагүй.
 
-The atom is an interactive, simplified Bohr-style visualization; it is not a scale-accurate physical model.
+## Хэсгүүдийг турших
+
+- **Нүүр:** үелэх системээс элемент хайж, сонгоно; атомыг чирж эргүүлэх, хүрдээр томруулах, бүтцийг задлах үйлдлийг туршина.
+- **Хичээл:** ангилал эсвэл хайлтаар хичээл нээгээд өмнөх/дараах хичээл рүү шилжиж, дуусгасан төлөвийг тэмдэглэнэ. Хуудсыг дахин ачаалахад төлөв хадгалагдсан байна.
+- **Сорил:** гурван түвшний аль нэг эсвэл өдөр тутмын дадлагыг сонгоно. Асуулт бүрд нэг удаа хариулж, тайлбар болон үр дүнг харна; түүх, оноо refresh-ийн дараа үлдэнэ.
+- **Лаборатори:** жишээ атом сонгох эсвэл протон, нейтрон, электроны тоог өөрчилнө. Элемент, массын тоо, цэнэг, электрон давхрааны шинэчлэлтийг шалгана.
+- **Хадгалсан:** үелэх системийн элемент бүрийн `☆` товчоор дуртайд нэмэх/хасах; нэр, тэмдэг, атомын дугаар болон бүлгээр хайж, элемент нээх боломжтой.
+- **Миний ахиц:** статистик, сүүлийн үйл ажиллагааг шалгана. “Ахиц шинэчлэх” үйлдэл дуусгасан хичээл, сорилын түүх, оноо, үйл ажиллагааг асууж байж арилгана; дуртай элементүүдийг хэвээр үлдээнэ.
+- **Утас:** 320 px өргөнөөс эхлэн цэс, карт, удирдлага багтаж байгааг веб хөтчийн дэлгэцийн хэмжээг өөрчлөх горимоор шалгана.
+
+## Өгөгдөл хадгалалт ба хувийн нууц
+
+Хичээлийн ахиц, дуртай элемент, сорилын түүх болон оноог тухайн веб хөтөчийн `localStorage` дотор `atomlab.learning.v1` түлхүүрээр хадгална. Өгөгдөл зөвхөн энэ төхөөрөмж, веб хөтөчид хамаарах бөгөөд хэрэглэгчийн бүртгэл, API, сервер шаарддаггүй. Веб хөтөчийн өгөгдлийг цэвэрлэхэд суралцах түүх мөн арилж болно. Алдаатай хадгалсан өгөгдөл уншигдахгүй бол апп хоосон төлөвөөр эхэлж, мэдээлэх бөгөөд хэрэглэгч шинэ өөрчлөлт хийх хүртэл хуучин утгыг дарж бичихгүй.
+
+Атомын дүрслэл нь Борын хялбаршуулсан сургалтын загвар; бөөмсийн хэмжээ, зай нь бодит масштабыг илэрхийлэхгүй.
+
+## GitHub ба Vercel-д байрлуулах
+
+1. Төслийг GitHub repository руу push хийнэ.
+2. Vercel-д repository-г импортлоно.
+3. Build command болон Output Directory шаардлагагүй; static site байдлаар байрлуулна.
+4. Production branch руу push хийсний дараа Vercel deployment-ийг шалгана.
